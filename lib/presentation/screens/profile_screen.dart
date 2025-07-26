@@ -203,7 +203,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '+61 0404 123 456',
+                  userData!.email,
                   style: const TextStyle(color: Colors.grey, fontSize: 16),
                 ),
                 const SizedBox(height: 30),
@@ -392,7 +392,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         return;
       }
 
-      final data = userDoc.data() as Map<String, dynamic>?;
+      final data = userDoc.data();
       final blockedUsers = List<String>.from(data?['blockedUsers'] ?? []);
 
       bool blocked;
