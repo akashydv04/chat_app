@@ -8,6 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../utils/app_colors.dart';
 import '../../utils/firebase_storage_service_utils.dart';
 import '../../utils/image_picker_bottom_sheet.dart';
 import '../../utils/utils.dart';
@@ -96,13 +97,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           content: const Text('Are you sure you want to logout?'),
           actions: [
             CupertinoDialogAction(
-              child: const Text('Cancel'),
+              child: const Text('Cancel', style: TextStyle(color: Colors.red)),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             CupertinoDialogAction(
-              child: const Text('Logout'),
+              child: Text('Logout', style: TextStyle(color: app_main_color)),
               onPressed: () async {
                 await FirebaseAuth.instance.signOut();
                 Navigator.pushReplacementNamed(context, "/login");
