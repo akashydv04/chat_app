@@ -1,14 +1,17 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat_app/model/user_data.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../utils/firebase_storage_service_utils.dart';
 import '../../utils/image_picker_bottom_sheet.dart';
 import '../../utils/utils.dart';
+import 'bottomsheet/change_password.dart';
 
 class ProfileScreen extends StatefulWidget {
   final dynamic currentUser;
@@ -85,8 +88,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void logOut(BuildContext context) async {
-    await FirebaseAuth.instance.signOut();
-    Navigator.pushReplacementNamed(context, "/login");
+    showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: const Text('Logout'),
+          content: const Text('Are you sure you want to logout?'),
+          actions: [
+            CupertinoDialogAction(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            CupertinoDialogAction(
+              child: const Text('Logout'),
+              onPressed: () async {
+                await FirebaseAuth.instance.signOut();
+                Navigator.pushReplacementNamed(context, "/login");
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _onPickImage(BuildContext context) async {
@@ -159,18 +184,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Stack(
                   alignment: Alignment.bottomRight,
                   children: [
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundImage:
-                          (userData != null &&
-                              userData!.profileImageUrl.isNotEmpty)
-                          ? NetworkImage(userData!.profileImageUrl)
-                          : AssetImage(
-                                  userData != null && userData!.gender == 'Male'
-                                      ? 'assets/images/man.png'
-                                      : 'assets/images/woman.png',
-                                )
-                                as ImageProvider,
+                    Hero(
+                      tag: 'profile_${userData?.email}',
+                      child: CircleAvatar(
+                        radius: 50,
+                        backgroundImage:
+                            (userData != null &&
+                                userData!.profileImageUrl.isNotEmpty)
+                            ? CachedNetworkImageProvider(
+                                userData!.profileImageUrl,
+                              )
+                            : AssetImage(
+                                    userData != null &&
+                                            userData!.gender == 'Male'
+                                        ? 'assets/images/man.png'
+                                        : 'assets/images/woman.png',
+                                  )
+                                  as ImageProvider,
+                      ),
                     ),
                     if (isCurrentUser)
                       Positioned(
@@ -211,22 +242,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ? Expanded(
                         child: ListView(
                           children: [
-                            _buildOption(Icons.person_outline, 'My account'),
                             _buildOption(
                               Icons.notifications_none,
                               'Notifications',
                             ),
-                            _buildOption(
-                              Icons.shield_outlined,
-                              'Privacy and safety',
-                            ),
-                            _buildOption(
-                              Icons.pie_chart_outline,
-                              'Data and storage',
-                            ),
-                            _buildOption(Icons.devices_other, 'Devices'),
-                            _buildOption(Icons.help_outline, 'FAQ'),
-                            _buildOption(Icons.settings_outlined, 'Settings'),
+                            _buildOption(Icons.security, 'Change password'),
                             _buildOption(
                               Icons.logout,
                               'Logout',
@@ -327,7 +347,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return ListTile(
       leading: Icon(icon, size: 24),
       title: Text(title, style: const TextStyle(fontSize: 16)),
-      onTap: onTap,
+      onTap: () {
+        switch (title) {
+          case 'Notifications':
+            Navigator.pushNamed(context, '/notifications');
+            break;
+          case 'Change password':
+            changePassword(context);
+            // Navigator.pushNamed(context, '/change-password');
+            break;
+          case 'Logout':
+            logOut(context);
+            break;
+        }
+      },
     );
   }
 

@@ -1,23 +1,29 @@
+import 'package:chat_app/presentation/screens/chat_screen.dart';
 import 'package:chat_app/presentation/screens/home_screen.dart';
+import 'package:chat_app/presentation/screens/login_screen.dart';
+import 'package:chat_app/presentation/screens/profile_screen.dart';
+import 'package:chat_app/presentation/screens/register_screen.dart';
+import 'package:chat_app/presentation/screens/splash_screen.dart';
+import 'package:chat_app/presentation/screens/users_list_screen.dart';
 import 'package:chat_app/utils/app_colors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 import 'firebase_options.dart';
-import 'presentation/screens/chat_screen.dart';
-import 'presentation/screens/login_screen.dart';
-import 'presentation/screens/profile_screen.dart';
-import 'presentation/screens/register_screen.dart';
-import 'presentation/screens/splash_screen.dart';
-import 'presentation/screens/users_list_screen.dart';
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Firestore offline support
   FirebaseFirestore.instance.settings = const Settings(
     persistenceEnabled: true,
   );
+
   runApp(const MyApp());
 }
 
@@ -27,6 +33,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey,
       title: 'Flutter Chat App',
       theme: ThemeData(
         useMaterial3: true,
@@ -34,16 +41,28 @@ class MyApp extends StatelessWidget {
         primaryColor: app_main_color,
         colorScheme: ColorScheme.fromSeed(seedColor: app_main_color),
       ),
-      initialRoute: '/splash',
+      initialRoute: FirebaseAuth.instance.currentUser == null
+          ? Routes.login
+          : Routes.home,
       routes: {
-        '/splash': (context) => SplashScreen(),
-        '/login': (context) => const LoginScreen(),
-        '/register': (context) => const RegisterScreen(),
-        '/users': (context) => const UsersListScreen(),
-        '/chat': (context) => const ChatScreen(),
-        '/profile': (context) => const ProfileScreen(),
-        '/home': (context) => const HomeScreen(),
+        Routes.splash: (context) => SplashScreen(),
+        Routes.login: (context) => const LoginScreen(),
+        Routes.register: (context) => const RegisterScreen(),
+        Routes.users: (context) => const UsersListScreen(),
+        Routes.chat: (context) => const ChatScreen(),
+        Routes.profile: (context) => const ProfileScreen(),
+        Routes.home: (context) => const HomeScreen(),
       },
     );
   }
+}
+
+class Routes {
+  static const splash = '/splash';
+  static const login = '/login';
+  static const register = '/register';
+  static const users = '/users';
+  static const chat = '/chat';
+  static const profile = '/profile';
+  static const home = '/home';
 }
