@@ -242,10 +242,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ? Expanded(
                         child: ListView(
                           children: [
-                            _buildOption(
-                              Icons.notifications_none,
-                              'Notifications',
-                            ),
                             _buildOption(Icons.security, 'Change password'),
                             _buildOption(
                               Icons.logout,
@@ -349,9 +345,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       title: Text(title, style: const TextStyle(fontSize: 16)),
       onTap: () {
         switch (title) {
-          case 'Notifications':
-            Navigator.pushNamed(context, '/notifications');
-            break;
           case 'Change password':
             changePassword(context);
             // Navigator.pushNamed(context, '/change-password');

@@ -92,6 +92,7 @@ flutter:
         - asset: assets/fonts/Chat-app_light_italic.otf
         - asset: assets/fonts/Chat-app_medium.otf
         - asset: assets/fonts/Chat-app_regular.otf
+          weight: 400
         - asset: assets/fonts/Chat-app_semibold_italic.otf
         - asset: assets/fonts/Chat-app_thin_italic.otf
         - asset: assets/fonts/Chat-app_ultra_light_italic.otf
