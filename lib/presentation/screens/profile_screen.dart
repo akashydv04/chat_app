@@ -31,9 +31,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool isLoading = true;
   bool isBlocked = false;
   bool _isLoading = false;
-  String _uploadedFile = "";
-  double _uploadProgress = 0.0;
-  String? _selectedImageUrl;
   final ImagePicker picker = ImagePicker();
 
   var currentUser = FirebaseAuth.instance.currentUser;
@@ -124,7 +121,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (selectedSource == ImageSourceType.camera) {
       _pickImage(ImageSource.camera);
     } else if (selectedSource == ImageSourceType.gallery) {
-      // _pickImage(ImageSource.gallery);
       _uploadImageFromGallery();
     }
   }
