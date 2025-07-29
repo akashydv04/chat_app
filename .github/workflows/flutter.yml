@@ -17,7 +17,16 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.3'  # Use your project's version
+          flutter-version: '3.22.3' # Includes Dart 3.8.1 (required by your app)
+
+      - name: Cache Flutter pub packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
 
       - name: Install dependencies
         run: flutter pub get
@@ -28,7 +37,7 @@ jobs:
       - name: Run unit tests
         run: flutter test
 
-      - name: Build APK
+      - name: Build APK (release)
         run: flutter build apk --release
 
       - name: Upload APK artifact
@@ -37,8 +46,8 @@ jobs:
           name: release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
 
-      - name: (Optional) Build Web
-        run: flutter build web
+      - name: Build Web (release)
+        run: flutter build web --release
 
       - name: Upload Web build
         uses: actions/upload-artifact@v4
