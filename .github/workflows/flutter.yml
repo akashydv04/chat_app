@@ -34,7 +34,6 @@ jobs:
       - name: Run Flutter analyzer
         run: flutter analyze || true
 
-
       - name: Run unit tests
         run: flutter test
 
