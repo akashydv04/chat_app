@@ -15,7 +15,8 @@ import 'firebase_options.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-void main() async {
+/// Production entry point.
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
@@ -24,11 +25,25 @@ void main() async {
     persistenceEnabled: true,
   );
 
-  runApp(const MyApp());
+  runApp(AppRoot(auth: FirebaseAuth.instance));
+}
+
+/// Root container that allows injecting a FirebaseAuth instance (real or mock).
+class AppRoot extends StatelessWidget {
+  final FirebaseAuth auth;
+
+  const AppRoot({super.key, required this.auth});
+
+  @override
+  Widget build(BuildContext context) {
+    return MyApp(auth: auth);
+  }
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final FirebaseAuth auth;
+
+  const MyApp({super.key, required this.auth});
 
   @override
   Widget build(BuildContext context) {
@@ -41,9 +56,7 @@ class MyApp extends StatelessWidget {
         primaryColor: app_main_color,
         colorScheme: ColorScheme.fromSeed(seedColor: app_main_color),
       ),
-      initialRoute: FirebaseAuth.instance.currentUser == null
-          ? Routes.login
-          : Routes.home,
+      initialRoute: auth.currentUser == null ? Routes.login : Routes.home,
       routes: {
         Routes.splash: (context) => SplashScreen(),
         Routes.login: (context) => const LoginScreen(),

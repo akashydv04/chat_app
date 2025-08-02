@@ -1,30 +1,47 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
+import 'package:chat_app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:chat_app/main.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  setUpAll(() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    // Dummy initialization so firebase_core doesn't fail.
+    await Firebase.initializeApp(
+      options: const FirebaseOptions(
+        apiKey: 'test',
+        appId: '1:123:android:test',
+        messagingSenderId: 'test',
+        projectId: 'test',
+      ),
+    );
+  });
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  testWidgets('App builds with a signed-in mock user', (WidgetTester tester) async {
+    final mockUser = MockUser(
+      isAnonymous: false,
+      uid: 'uid123',
+      email: 'test@example.com',
+    );
+    final mockAuth = MockFirebaseAuth(mockUser: mockUser);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    await tester.pumpWidget(AppRoot(auth: mockAuth));
+    await tester.pumpAndSettle();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Sanity: root rendered
+    expect(find.byType(MaterialApp), findsOneWidget);
+    // Since user is signed in, initial route is home; adjust if HomeScreen shows specific text
+    expect(find.textContaining('Home'), findsWidgets);
+  });
+
+  testWidgets('App shows login when no user is signed in', (WidgetTester tester) async {
+    final mockAuth = MockFirebaseAuth(); // no user
+
+    await tester.pumpWidget(AppRoot(auth: mockAuth));
+    await tester.pumpAndSettle();
+
+    // Expect login screen; adjust to actual login UI text/element
+    expect(find.textContaining('Login'), findsWidgets);
   });
 }
